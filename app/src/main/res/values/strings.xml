@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">RESEARCH</string>
+    <string name="battery_now">Battery now : </string>
+    <string name="up_time">Up Time : </string>
+    <string name="transmit">Transmit Data : </string>
+    <string name="data_usage">Data usage today : </string>
+    <string name="receive">Receive Data : </string>
+    <string name="operator">Operator : </string>
+    <string name="jum_sms">Jumlah sms : </string>
+    <string name="prepost">jumlah sms operator : </string>
+    <string name="messagenya">messagenya : </string>
+
+</resources>
