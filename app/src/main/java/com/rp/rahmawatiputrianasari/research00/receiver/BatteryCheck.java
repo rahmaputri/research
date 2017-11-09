@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import android.widget.Toast;
 
 import com.rp.rahmawatiputrianasari.research00.model.DatabaseHelper;
 
@@ -33,11 +32,11 @@ public class BatteryCheck extends BroadcastReceiver {
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
         String formattedDate = df.format(c.getTime());
 
-        boolean isInserted = myDb.insertData(formattedDate, aa);
-        if (isInserted)
-            Toast.makeText(ctxt, "Data Inserted", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(ctxt, "Data not Inserted", Toast.LENGTH_LONG).show();
+//        boolean isInserted = myDb.insertData(formattedDate, aa);
+//        if (isInserted)
+//            Toast.makeText(ctxt, "Data Inserted", Toast.LENGTH_LONG).show();
+//        else
+//            Toast.makeText(ctxt, "Data not Inserted", Toast.LENGTH_LONG).show();
 
     }
 

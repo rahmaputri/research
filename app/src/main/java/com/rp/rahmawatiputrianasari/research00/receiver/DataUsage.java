@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.TrafficStats;
-import android.widget.Toast;
 
 import com.rp.rahmawatiputrianasari.research00.model.DbDataUsage;
 
@@ -35,11 +34,11 @@ public class DataUsage extends BroadcastReceiver {
         long mobile = mobileRX + mobileTX;
         long wifi = total - mobile;
 
-        boolean isInserted = myDb2.insertData(formattedDate, Long.toString(mobile), Long.toString(wifi), Long.toString(total));
-        if (isInserted)
-            Toast.makeText(context, "Data Inserted", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(context, "Data not Inserted", Toast.LENGTH_LONG).show();
+//        boolean isInserted = myDb2.insertData(formattedDate, Long.toString(mobile), Long.toString(wifi), Long.toString(total));
+//        if (isInserted)
+//            Toast.makeText(context, "Data Inserted", Toast.LENGTH_LONG).show();
+//        else
+//            Toast.makeText(context, "Data not Inserted", Toast.LENGTH_LONG).show();
 
 
     }

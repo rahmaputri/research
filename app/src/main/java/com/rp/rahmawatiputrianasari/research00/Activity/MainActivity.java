@@ -21,6 +21,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 import com.rp.rahmawatiputrianasari.research00.R;
 import com.rp.rahmawatiputrianasari.research00.model.DatabaseHelper;
 import com.rp.rahmawatiputrianasari.research00.model.DbBatteryStatus;
@@ -28,6 +34,7 @@ import com.rp.rahmawatiputrianasari.research00.model.DbDataUsage;
 import com.rp.rahmawatiputrianasari.research00.model.DbNetworkSc;
 import com.rp.rahmawatiputrianasari.research00.receiver.BatteryCheck;
 import com.rp.rahmawatiputrianasari.research00.receiver.DataUsage;
+import com.rp.rahmawatiputrianasari.research00.service.MyJobService;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -96,6 +103,7 @@ public class MainActivity extends BaseActivity {
         dataUsageTxt = (TextView) findViewById(R.id.data);
 
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        runServiceBootCompleted();
 
         myDb = new DatabaseHelper(this);
         DbBatteryStat = new DbBatteryStatus(this);
@@ -234,6 +242,35 @@ public class MainActivity extends BaseActivity {
         });
 
 
+    }
+    public void runServiceBootCompleted(){
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getApplicationContext()));
+
+        Bundle myExtrasBundle = new Bundle();
+
+        myExtrasBundle.putString("some_key", "some_value");
+
+        Job myJob = dispatcher.newJobBuilder()
+                // the JobService that will be called
+                .setService(MyJobService.class)
+                // uniquely identifies the job
+                .setTag("my-unique-tag-test")
+                // one-off job
+                .setRecurring(true)
+                // don't persist past a device reboot
+                .setLifetime(Lifetime.FOREVER)
+                // start between 0 and 60 seconds from now
+                .setTrigger(Trigger.executionWindow(0, 60))
+                // don't overwrite an existing job with the same tag
+                .setReplaceCurrent(false)
+                // retry with exponential backoff
+                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                // constraints that need to be satisfied for the job to run
+                .setExtras(myExtrasBundle)
+
+                .build();
+
+        dispatcher.mustSchedule(myJob);
     }
 
     public void addData() {

@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
     <application
@@ -47,9 +48,18 @@
             </intent-filter>
         </activity>
 
-        <!--<service-->
-        <!--android:name=".service.BatteryService"-->
-        <!--android:exported="false"></service>-->
+        <service
+            android:name=".service.MyJobService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.PowerStatusService"
+            android:exported="false"
+            android:stopWithTask="false" />
 
         <receiver
             android:name=".receiver.BatteryCheck"
@@ -57,6 +67,7 @@
         <receiver
             android:name=".receiver.DataUsage"
             android:process=":remote"></receiver>
+
         <receiver android:name=".receiver.PowerConnectionReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
