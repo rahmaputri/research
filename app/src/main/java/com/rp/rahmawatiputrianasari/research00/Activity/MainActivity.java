@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -32,13 +31,9 @@ import com.firebase.jobdispatcher.Trigger;
 import com.j256.ormlite.dao.Dao;
 import com.rp.rahmawatiputrianasari.research00.R;
 import com.rp.rahmawatiputrianasari.research00.model.ConnectionStatus;
-import com.rp.rahmawatiputrianasari.research00.model.DatabaseHelper;
-import com.rp.rahmawatiputrianasari.research00.model.DbBatteryStatus;
-import com.rp.rahmawatiputrianasari.research00.model.DbDataUsage;
-import com.rp.rahmawatiputrianasari.research00.model.DbNetworkSc;
 import com.rp.rahmawatiputrianasari.research00.model.PowerStatus;
 import com.rp.rahmawatiputrianasari.research00.receiver.BatteryCheck;
-import com.rp.rahmawatiputrianasari.research00.receiver.DataUsage;
+import com.rp.rahmawatiputrianasari.research00.receiver.DataUsageReceiver;
 import com.rp.rahmawatiputrianasari.research00.service.ConnectionStatusService;
 import com.rp.rahmawatiputrianasari.research00.service.MyJobService;
 import com.rp.rahmawatiputrianasari.research00.service.PowerStatusService;
@@ -78,10 +73,10 @@ public class MainActivity extends BaseActivity {
     PendingIntent alarmIntent;
     PendingIntent alarmIntent2;
 
-    DatabaseHelper myDb;
-    DbBatteryStatus DbBatteryStat;
-    DbNetworkSc DbNetworkSource;
-    DbDataUsage DbDataUsage;
+//    DatabaseHelper myDb;
+//    DbBatteryStatus DbBatteryStat;
+//    DbNetworkSc DbNetworkSource;
+//    DbDataUsage DbDataUsage;
 
     private Dao<ConnectionStatus, Integer> mConnectionStatusDao;
     private Dao<PowerStatus, Integer> mPowerStatus;
@@ -117,10 +112,10 @@ public class MainActivity extends BaseActivity {
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 //        runServiceBootCompleted();
 
-        myDb = new DatabaseHelper(this);
-        DbBatteryStat = new DbBatteryStatus(this);
-        DbNetworkSource = new DbNetworkSc(this);
-        DbDataUsage = new DbDataUsage(this);
+//        myDb = new DatabaseHelper(this);
+//        DbBatteryStat = new DbBatteryStatus(this);
+//        DbNetworkSource = new DbNetworkSc(this);
+//        DbDataUsage = new DbDataUsage(this);
 
         mConnectionStatusDao = this.getDatabaseHelper().getConnectionStatusDao();
         mPowerStatus = this.getDatabaseHelper().getPowerStatusDao();
@@ -159,7 +154,7 @@ public class MainActivity extends BaseActivity {
                 1000 * 60 * 2, alarmIntent);
 
         alarmMgr2 = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        Intent inn = new Intent(this, DataUsage.class);
+        Intent inn = new Intent(this, DataUsageReceiver.class);
         alarmIntent2 = PendingIntent.getBroadcast(getBaseContext(), 1, inn, 0);
 //        Set the alarm to start at 23.00 a.m.
         Calendar cal = Calendar.getInstance();
@@ -219,41 +214,41 @@ public class MainActivity extends BaseActivity {
         btnNetworkSource.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor res = DbNetworkSource.getAllData();
-                if (res.getCount() == 0) {
-                    // show message
-                    showMessage("Empty Database", "Nothing found");
-                    return;
-                }
-                StringBuffer buffer = new StringBuffer();
-                while (res.moveToNext()) {
-                    buffer.append("Id : " + res.getString(0) + "\n");
-                    buffer.append("Date : " + res.getString(1) + "\n");
-                    buffer.append("DATA : " + res.getString(2) + "\n\n");
-                }
-                // Show all data
-                showMessage("Data", buffer.toString());
+//                Cursor res = DbNetworkSource.getAllData();
+//                if (res.getCount() == 0) {
+//                     show message
+//                    showMessage("Empty Database", "Nothing found");
+//                    return;
+//                }
+//                StringBuffer buffer = new StringBuffer();
+//                while (res.moveToNext()) {
+//                    buffer.append("Id : " + res.getString(0) + "\n");
+//                    buffer.append("Date : " + res.getString(1) + "\n");
+//                    buffer.append("DATA : " + res.getString(2) + "\n\n");
+//                }
+//                 Show all data
+//                showMessage("Data", buffer.toString());
             }
         });
         btnDataUsage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor res = DbDataUsage.getAllData();
-                if (res.getCount() == 0) {
-                    // show message
-                    showMessage("Empty Database", "Nothing found");
-                    return;
-                }
-                StringBuffer buffer = new StringBuffer();
-                while (res.moveToNext()) {
-                    buffer.append("Id :" + res.getString(0) + "\n");
-                    buffer.append("Date : " + res.getString(1) + "\n");
-                    buffer.append("MOBILE :" + res.getString(2) + "\n");
-                    buffer.append("WIFI : " + res.getString(3) + "\n");
-                    buffer.append("TOTAL : " + res.getString(4) + "\n\n");
-                }
-                // Show all data
-                showMessage("Data", buffer.toString());
+//                Cursor res = DbDataUsage.getAllData();
+//                if (res.getCount() == 0) {
+//                    // show message
+//                    showMessage("Empty Database", "Nothing found");
+//                    return;
+//                }
+//                StringBuffer buffer = new StringBuffer();
+//                while (res.moveToNext()) {
+//                    buffer.append("Id :" + res.getString(0) + "\n");
+//                    buffer.append("Date : " + res.getString(1) + "\n");
+//                    buffer.append("MOBILE :" + res.getString(2) + "\n");
+//                    buffer.append("WIFI : " + res.getString(3) + "\n");
+//                    buffer.append("TOTAL : " + res.getString(4) + "\n\n");
+//                }
+//                // Show all data
+//                showMessage("Data", buffer.toString());
             }
         });
         btnHapus.setOnClickListener(new View.OnClickListener() {
@@ -325,20 +320,20 @@ public class MainActivity extends BaseActivity {
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
         String formattedDate = df.format(c.getTime());
 
-        boolean isInserted = myDb.insertData(formattedDate,
-                batteryTxt.getText().toString());
-        if (isInserted)
-            Toast.makeText(MainActivity.this, "Data Inserted", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(MainActivity.this, "Data not Inserted", Toast.LENGTH_LONG).show();
+//        boolean isInserted = myDb.insertData(formattedDate,
+//                batteryTxt.getText().toString());
+//        if (isInserted)
+//            Toast.makeText(MainActivity.this, "Data Inserted", Toast.LENGTH_LONG).show();
+//        else
+//            Toast.makeText(MainActivity.this, "Data not Inserted", Toast.LENGTH_LONG).show();
 
     }
 
     public void deleteData() {
-        myDb.deleteData();
-        DbBatteryStat.deleteData();
-        DbNetworkSource.deleteData();
-        DbDataUsage.deleteData();
+//        myDb.deleteData();
+//        DbBatteryStat.deleteData();
+//        DbNetworkSource.deleteData();
+//        DbDataUsage.deleteData();
     }
 
     public void showMessage(String title, String Message) {

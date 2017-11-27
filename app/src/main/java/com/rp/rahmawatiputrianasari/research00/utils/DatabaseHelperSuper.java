@@ -11,6 +11,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import com.rp.rahmawatiputrianasari.research00.model.BatteryStatus;
 import com.rp.rahmawatiputrianasari.research00.model.ConnectionStatus;
+import com.rp.rahmawatiputrianasari.research00.model.DataUsage;
 import com.rp.rahmawatiputrianasari.research00.model.PowerStatus;
 
 /**
@@ -27,6 +28,7 @@ public class DatabaseHelperSuper extends OrmLiteSqliteOpenHelper {
     private Dao<PowerStatus, Integer> powerStatusDao;
     private Dao<ConnectionStatus, Integer> connectionStatusDao;
     private Dao<BatteryStatus, Integer> batteryStatusDao;
+    private Dao<DataUsage, Integer> dataUsageDao;
 
     public DatabaseHelperSuper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -51,6 +53,7 @@ public class DatabaseHelperSuper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, PowerStatus.class);
             TableUtils.createTableIfNotExists(connectionSource, ConnectionStatus.class);
             TableUtils.createTableIfNotExists(connectionSource, BatteryStatus.class);
+            TableUtils.createTableIfNotExists(connectionSource, DataUsage.class);
         } catch (SQLException | java.sql.SQLException e) {
             LogUtil.error("Could not create new table: " + e);
         }
@@ -61,6 +64,7 @@ public class DatabaseHelperSuper extends OrmLiteSqliteOpenHelper {
         powerStatusDao = null;
         connectionStatusDao = null;
         batteryStatusDao = null;
+        dataUsageDao = null;
     }
 
     @Override
@@ -108,6 +112,17 @@ public class DatabaseHelperSuper extends OrmLiteSqliteOpenHelper {
             }
         }
         return batteryStatusDao;
+    }
+
+    public Dao<DataUsage, Integer> getDataUsageDao() {
+        if (dataUsageDao == null) {
+            try {
+                dataUsageDao = getDao(DataUsage.class);
+            } catch (java.sql.SQLException e) {
+                LogUtil.error("Failed get dataUsageDao: " + e.getMessage());
+            }
+        }
+        return dataUsageDao;
     }
 
     @Override
