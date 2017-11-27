@@ -29,7 +29,7 @@ public class PowerStatusService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             databaseHelperSuper = DatabaseHelperSuper.getInstance(context);
-            powerStatusDao = databaseHelperSuper.getPowerStatus();
+            powerStatusDao = databaseHelperSuper.getPowerStatusDao();
             String action = intent.getAction();
             String strAction;
             if (action == Intent.ACTION_BATTERY_LOW) {

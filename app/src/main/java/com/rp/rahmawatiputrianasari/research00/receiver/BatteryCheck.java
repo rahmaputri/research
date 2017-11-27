@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
-import com.rp.rahmawatiputrianasari.research00.model.DatabaseHelper;
+import com.j256.ormlite.dao.Dao;
+import com.rp.rahmawatiputrianasari.research00.model.BatteryStatus;
+import com.rp.rahmawatiputrianasari.research00.utils.DatabaseHelperSuper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,11 +18,15 @@ import java.util.Calendar;
  */
 
 public class BatteryCheck extends BroadcastReceiver {
-    DatabaseHelper myDb;
+    //    DatabaseHelper myDb;
+    private Dao<BatteryStatus, Integer> batteryStatusDao;
+    public DatabaseHelperSuper databaseHelper = null;
 
     @Override
     public void onReceive(Context ctxt, Intent intent) {
-        myDb = new DatabaseHelper(ctxt);
+//        myDb = new DatabaseHelper(ctxt);
+        databaseHelper = DatabaseHelperSuper.getInstance(ctxt);
+        batteryStatusDao = databaseHelper.getBatteryStatusDao();
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = ctxt.registerReceiver(null, ifilter);
 
@@ -37,6 +43,8 @@ public class BatteryCheck extends BroadcastReceiver {
 //            Toast.makeText(ctxt, "Data Inserted", Toast.LENGTH_LONG).show();
 //        else
 //            Toast.makeText(ctxt, "Data not Inserted", Toast.LENGTH_LONG).show();
+
+
 
     }
 

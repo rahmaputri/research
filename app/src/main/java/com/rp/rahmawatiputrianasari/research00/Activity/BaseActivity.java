@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
 import com.rp.rahmawatiputrianasari.research00.utils.AndroidPermissionUtils;
+import com.rp.rahmawatiputrianasari.research00.utils.DatabaseHelperSuper;
 
 /**
  * Created by rahmawatiputrianasari on 10/10/17.
@@ -14,6 +15,7 @@ import com.rp.rahmawatiputrianasari.research00.utils.AndroidPermissionUtils;
 public abstract class BaseActivity extends AppCompatActivity {
     private static final long KEY_BACK_INTERVAL = 2000L;
     private static MainActivity mainActivity;
+    public DatabaseHelperSuper databaseHelperSuper = null;
 
     /**
      * You'll need this in your class to cache the helper in the class.
@@ -96,6 +98,13 @@ public abstract class BaseActivity extends AppCompatActivity {
      * the all permission is granted
      */
     protected void onPermissionGranted() {
+    }
+    public DatabaseHelperSuper getDatabaseHelper() {
+        if (databaseHelperSuper == null) {
+//            databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
+            databaseHelperSuper = databaseHelperSuper.getInstance(this);
+        }
+        return databaseHelperSuper;
     }
 
 

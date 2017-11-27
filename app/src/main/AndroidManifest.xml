@@ -49,17 +49,35 @@
         </activity>
 
         <service
-            android:name=".service.MyJobService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
-            </intent-filter>
+        android:name=".service.MyJobService"
+        android:exported="false">
+        <intent-filter>
+        <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
+        </intent-filter>
         </service>
 
         <service
             android:name=".service.PowerStatusService"
+            android:enabled="true"
             android:exported="false"
             android:stopWithTask="false" />
+        <service
+            android:name=".service.ConnectionStatusService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false" />
+
+        <receiver
+            android:name=".receiver.AfterbootReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </receiver>
 
         <receiver
             android:name=".receiver.BatteryCheck"

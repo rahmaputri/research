@@ -1,5 +1,6 @@
 package com.rp.rahmawatiputrianasari.research00.Activity;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,17 +29,24 @@ import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.RetryStrategy;
 import com.firebase.jobdispatcher.Trigger;
+import com.j256.ormlite.dao.Dao;
 import com.rp.rahmawatiputrianasari.research00.R;
+import com.rp.rahmawatiputrianasari.research00.model.ConnectionStatus;
 import com.rp.rahmawatiputrianasari.research00.model.DatabaseHelper;
 import com.rp.rahmawatiputrianasari.research00.model.DbBatteryStatus;
 import com.rp.rahmawatiputrianasari.research00.model.DbDataUsage;
 import com.rp.rahmawatiputrianasari.research00.model.DbNetworkSc;
+import com.rp.rahmawatiputrianasari.research00.model.PowerStatus;
 import com.rp.rahmawatiputrianasari.research00.receiver.BatteryCheck;
 import com.rp.rahmawatiputrianasari.research00.receiver.DataUsage;
+import com.rp.rahmawatiputrianasari.research00.service.ConnectionStatusService;
 import com.rp.rahmawatiputrianasari.research00.service.MyJobService;
+import com.rp.rahmawatiputrianasari.research00.service.PowerStatusService;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends BaseActivity {
     private TextView batteryTxt;
@@ -74,6 +83,9 @@ public class MainActivity extends BaseActivity {
     DbNetworkSc DbNetworkSource;
     DbDataUsage DbDataUsage;
 
+    private Dao<ConnectionStatus, Integer> mConnectionStatusDao;
+    private Dao<PowerStatus, Integer> mPowerStatus;
+
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context ctxt, Intent intent) {
@@ -103,12 +115,15 @@ public class MainActivity extends BaseActivity {
         dataUsageTxt = (TextView) findViewById(R.id.data);
 
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        runServiceBootCompleted();
+//        runServiceBootCompleted();
 
         myDb = new DatabaseHelper(this);
         DbBatteryStat = new DbBatteryStatus(this);
         DbNetworkSource = new DbNetworkSc(this);
         DbDataUsage = new DbDataUsage(this);
+
+        mConnectionStatusDao = this.getDatabaseHelper().getConnectionStatusDao();
+        mPowerStatus = this.getDatabaseHelper().getPowerStatusDao();
 
         mStartRX = TrafficStats.getTotalRxBytes();
         mStartTX = TrafficStats.getTotalTxBytes();
@@ -127,6 +142,7 @@ public class MainActivity extends BaseActivity {
         jumsmsTxt.setText(Integer.toString(count));
         messageTxt.setText(msgData);
         oper.setText(Integer.toString(operatorMsg));
+        runServices(this);
 
 
         alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
@@ -135,12 +151,12 @@ public class MainActivity extends BaseActivity {
 //        Set the alarm to start at 08.00 a.m.
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
-        calendar.set(Calendar.MINUTE, 23);
+        calendar.set(Calendar.HOUR_OF_DAY, 8);
+        calendar.set(Calendar.MINUTE, 0);
 //        setRepeating() every 7 hours
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
 //                1000 * 60 * 60 * 7, alarmIntent);
-                1000 * 60 * 7, alarmIntent);
+                1000 * 60 * 2, alarmIntent);
 
         alarmMgr2 = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent inn = new Intent(this, DataUsage.class);
@@ -159,39 +175,45 @@ public class MainActivity extends BaseActivity {
         btnAllData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor res = myDb.getAllData();
-                if (res.getCount() == 0) {
-                    // show message
-                    showMessage("Empty Database", "Nothing found");
-                    return;
+                try {
+                    List<PowerStatus> powerStatuses = mPowerStatus.queryForAll();
+                    if (powerStatuses.size() < 1) {
+                        showMessage("Empty Database", "Nothing found");
+                    } else {
+                        StringBuffer buffer = new StringBuffer();
+                        for (int ii = 0; ii < powerStatuses.size(); ii++) {
+                            buffer.append("Id : " + powerStatuses.get(ii).getId() + "\n");
+                            buffer.append("Date : " + powerStatuses.get(ii).getTime() + "\n");
+                            buffer.append("Battery : " + powerStatuses.get(ii).getStatus() + "\n\n");
+                        }
+                        showMessage("power Status", buffer.toString());
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-                StringBuffer buffer = new StringBuffer();
-                while (res.moveToNext()) {
-                    buffer.append("Id : " + res.getString(0) + "\n");
-                    buffer.append("Date : " + res.getString(1) + "\n");
-                    buffer.append("Battery : " + res.getString(2) + "\n\n");
-                }
-                // Show all data
-                showMessage("Data", buffer.toString());
+
             }
         });
         btnStatusData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor res = DbBatteryStat.getAllData();
-                if (res.getCount() == 0) {
-                    // show message
-                    showMessage("Empty Database", "Nothing found");
-                    return;
+                try {
+                    List<ConnectionStatus> connectionStatuses = mConnectionStatusDao.queryForAll();
+                    if (connectionStatuses.size() < 1) {
+                        showMessage("Empty Database", "Nothing found");
+                    } else {
+                        StringBuffer buffer = new StringBuffer();
+                        for (int ii = 0; ii < connectionStatuses.size(); ii++) {
+                            buffer.append("Id : " + connectionStatuses.get(ii).getId() + "\n");
+                            buffer.append("Date : " + connectionStatuses.get(ii).getTime() + "\n");
+                            buffer.append("connection : " + connectionStatuses.get(ii).getStatus() + "\n\n");
+                        }
+                        showMessage("connection Status", buffer.toString());
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-                StringBuffer buffer = new StringBuffer();
-                while (res.moveToNext()) {
-                    buffer.append("Id : " + res.getString(0) + "\n");
-                    buffer.append("Date : " + res.getString(1) + "\n");
-                    buffer.append("Battery : " + res.getString(2) + "\n\n");
-                }
-                // Show all data
-                showMessage("Data", buffer.toString());
+
             }
         });
         btnNetworkSource.setOnClickListener(new View.OnClickListener() {
@@ -243,7 +265,32 @@ public class MainActivity extends BaseActivity {
 
 
     }
-    public void runServiceBootCompleted(){
+
+    public void runServices(Context context) {
+        // checking running services
+        if (!isMyServiceRunning(context, PowerStatusService.class)) {
+            Intent intentPower = new Intent(context, PowerStatusService.class);
+            context.startService(intentPower);
+        }
+        if (!isMyServiceRunning(context, ConnectionStatusService.class)) {
+            Intent intentCnn = new Intent(context, ConnectionStatusService.class);
+            context.startService(intentCnn);
+        }
+    }
+
+    private static boolean isMyServiceRunning(Context context, Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i("isMyServiceRunning?", true + "");
+                return true;
+            }
+        }
+        Log.i("isMyServiceRunning?", false + "");
+        return false;
+    }
+
+    public void runServiceBootCompleted() {
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getApplicationContext()));
 
         Bundle myExtrasBundle = new Bundle();
